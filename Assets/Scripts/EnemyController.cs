@@ -4,33 +4,32 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
-    public float attackDistance; //minimum Distance for attack
-    public float moveSpeed;     //enemy move speed
-    public float timer; //timer for cooldown between attacks
-    public Transform leftLimit;  //patrol point
-    public Transform rightLimit;  // patrol point 
-    public GameObject hotZone;    //alarm zone for detecting player
+    [SerializeField] private float attackDistance;
+    [SerializeField] private float moveSpeed;
+    [SerializeField] private float timer;
+    [SerializeField] private Transform leftLimit;
+    [SerializeField] private Transform rightLimit;
+    public GameObject hotZone;
     public GameObject triggerArea;
 
-    public Transform groundcheck;  
+    [SerializeField] private Transform groundcheck;  
+    [SerializeField] private LayerMask groundFloor;
     private bool isGrounded;
-    public LayerMask groundFloor;
 
     public Transform target;
+    public bool inRange;
     private Animator anim;
-    private float distance; //store the distance between enemy and player
+    private float distance;
     private bool attackMode;
-    public bool inRange;//check if player is in range
-    private bool cooling;//checked if enemy is cooling after attack
-    private float intTimer;//store initial timer
+    private bool cooling;
+    private float intTimer;
 
     private void Awake()
     {
-        intTimer = timer; //store the initial value of timer
+        intTimer = timer; 
         anim = GetComponent<Animator>();
     }
 
-    // Update is called once per frame
     void Update()
     {
         isGrounded = Physics2D.OverlapCircle(groundcheck.position, 1f, groundFloor);
@@ -90,8 +89,8 @@ public class EnemyController : MonoBehaviour
     void Attack()
     {
         isGrounded = true;
-        timer = intTimer; //reset timer when player enter attack range
-        attackMode = true;//to check if enemy can still attack or not
+        timer = intTimer; 
+        attackMode = true;
 
         anim.SetBool("Walk", false);
         anim.SetBool("Attack", true);

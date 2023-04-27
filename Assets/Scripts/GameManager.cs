@@ -28,11 +28,13 @@ public class GameManager : MonoBehaviour
 
     void Start()
     {
+        currentCoin = SaveManager.Instance.activeSave.currentCoin;
         UpdateCoins();
     }
 
     void Update()
     {
+        SaveManager.Instance.activeSave.currentCoin = GameManager.Instance.CurrentCoin;
         UpdateCoins();
     }
 

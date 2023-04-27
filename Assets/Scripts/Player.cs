@@ -10,15 +10,30 @@ public class Player : MonoBehaviour
     public static Player Instance { get; private set; }
 
     [Header("Health")]
-    [SerializeField] private int maxHealth = 100;
-    [SerializeField] private int currentHealth;
+    [SerializeField] private float maxHealth = 100f;
+    [SerializeField] private float currentHealth;
+    [SerializeField] private float healingSpeed = 1f;
     [SerializeField] private bool isDeath;
-    public int MaxHealth { get { return maxHealth; } set { maxHealth = value; } }
-    public int CurrentHealth { get { return currentHealth; } set { currentHealth = value; } }
+    public float MaxHealth { get { return maxHealth; } set { maxHealth = value; } }
+    public float CurrentHealth { get { return currentHealth; } set { currentHealth = value; } }
+    public float HealingSpeed { get { return healingSpeed; } set { healingSpeed = value; } }
 
     [Header("Health UI")]
     [SerializeField] private Slider healthSlider;
     [SerializeField] private TMP_Text healthText;
+
+    [Header("Magic")]
+    [SerializeField] private float maxMagic = 100f;
+    [SerializeField] private float currentMagic;
+    [SerializeField] private float magicRefillSpeed = 2f;
+    [SerializeField] private float bulletMagicCost = 20f;
+    public float MaxMagic { get { return maxMagic; } set { maxMagic = value; } }
+    public float CurrentMagic { get { return currentMagic; } set { currentMagic = value; } }
+    public float MagicRefillSpeed { get { return magicRefillSpeed; } set { magicRefillSpeed = value; } }
+
+    [Header("Magic UI")]
+    [SerializeField] private Slider magicSlider;
+    [SerializeField] private TMP_Text magicText;
 
     [Header("Movement")]
     [SerializeField] private float runSpeed = 5.0f;
@@ -41,6 +56,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float attackRate = 2f;
     [SerializeField] private float nextAttackTime = 0f;
     [SerializeField] private LayerMask enemyLayer;
+    public int AttackDamage { get { return attackDamage; } set { attackDamage = value; } }
 
     [Header("Range Attack")]
     [SerializeField] private PlayerBullet bulletPref;
@@ -64,8 +80,15 @@ public class Player : MonoBehaviour
         playerAnim = GetComponentInChildren<Animator>();
         playerSprite = GetComponentInChildren<SpriteRenderer>();
 
+        maxHealth = SaveManager.Instance.activeSave.maxHealth;
+        maxMagic = SaveManager.Instance.activeSave.maxMagic;
+        healingSpeed = SaveManager.Instance.activeSave.healingSpeed;
+        magicRefillSpeed = SaveManager.Instance.activeSave.magicRefillSpeed;
+
         currentHealth = maxHealth;
+        currentMagic = maxMagic;
         UpdateHealth();
+        UpdateMagic();
     }
 
     void Update()
@@ -73,6 +96,9 @@ public class Player : MonoBehaviour
         if (EventSystem.current.IsPointerOverGameObject())
             return;
         UpdateHealth();
+        Healing();
+        UpdateMagic();
+        RefillMagic();
         if (!isDeath)
         {
             playerRb.velocity = new Vector2(Input.GetAxisRaw("Horizontal") * runSpeed, playerRb.velocity.y);
@@ -117,10 +143,11 @@ public class Player : MonoBehaviour
             playerAnim.SetBool("IsGrounded", isGrounded);
             playerAnim.SetFloat("Speed", Mathf.Abs(playerRb.velocity.x));
 
-            if (Input.GetMouseButtonDown(1))
+            if (Input.GetMouseButtonDown(1) && currentMagic>= bulletMagicCost)
             {
                 var bullet = Instantiate(bulletPref, shootingPoint.position, shootingPoint.rotation);
                 bullet.MoveDirection = new Vector2(transform.localScale.x, 0);
+                currentMagic -= bulletMagicCost;
                 AudioController.Instance.PlayerSFX(0);
             }
         }
@@ -165,7 +192,16 @@ public class Player : MonoBehaviour
     {
         healthSlider.maxValue = maxHealth;
         healthSlider.value = currentHealth;
-        healthText.text = currentHealth + "/" + maxHealth;
+        healthText.text = Mathf.RoundToInt(currentHealth) + "/" + maxHealth;
+    }
+
+    public void Healing()
+    {
+        currentHealth += healingSpeed * Time.deltaTime;
+        if (currentHealth > maxHealth)
+        {
+            currentHealth = maxHealth;
+        }
     }
 
     public void RestoreHealth(int healthToGive)
@@ -176,6 +212,21 @@ public class Player : MonoBehaviour
             currentHealth = maxHealth;
         }
         UpdateHealth();
+    }
+
+    public void UpdateMagic()
+    {
+        magicSlider.maxValue = maxMagic;
+        magicSlider.value = currentMagic;
+        magicText.text = Mathf.RoundToInt(currentMagic) + "/" + maxMagic;
+    }
+    public void RefillMagic()
+    {
+        currentMagic += magicRefillSpeed * Time.deltaTime;
+        if(currentMagic > maxMagic)
+        {
+            currentMagic = maxMagic;
+        }
     }
     private void OnDrawGizmosSelected()
     {
