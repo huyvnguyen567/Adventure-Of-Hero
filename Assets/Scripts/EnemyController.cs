@@ -44,7 +44,7 @@ public class EnemyController : MonoBehaviour
             Move();
         }
 
-        if (!InsideOfLimits() && !inRange && !anim.GetCurrentAnimatorStateInfo(0).IsName("Ghost_Attack"))
+        if (!InsideOfLimits() && !inRange && !anim.GetCurrentAnimatorStateInfo(0).IsName("Enemy_Attack"))
         {
             Patrol();
         }
@@ -57,32 +57,41 @@ public class EnemyController : MonoBehaviour
 
     void EnemyLogic()
     {
-        distance = Vector2.Distance(transform.position, target.position);
-
-        if (distance > attackDistance)
+        if (Player.Instance.IsDeath() == false)
         {
-            StopAttack();
-        }
+            distance = Vector2.Distance(transform.position, target.position);
 
-        else if (attackDistance >= distance && cooling == false)
-        {
-            Attack();
-        }
+            if (distance > attackDistance)
+            {
+                StopAttack();
+            }
 
-        if (cooling)
-        {
-            cooldown();
-            anim.SetBool("Attack", false);
+            else if (attackDistance >= distance && cooling == false)
+            {
+                Attack();
+            }
+
+            if (cooling)
+            {
+                cooldown();
+                anim.SetBool("Attack", false);
+            }
         }
+     
     }
 
     void Move()
     {
         anim.SetBool("Walk", true);
-        if (!anim.GetCurrentAnimatorStateInfo(0).IsName("Ghost_Attack"))
+        if (!anim.GetCurrentAnimatorStateInfo(0).IsName("Enemy_Attack") && !inRange)
         {
             Vector2 targetPosition = new Vector2(target.position.x, transform.position.y);
             transform.position = Vector2.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+        }
+        else
+        {
+            Vector2 targetPosition = new Vector2(target.position.x, transform.position.y);
+            transform.position = Vector2.MoveTowards(transform.position, targetPosition, (moveSpeed+1f) * Time.deltaTime);
         }
     }
 
@@ -141,16 +150,17 @@ public class EnemyController : MonoBehaviour
 
     public void Flip()
     {
-        Vector3 rotation = transform.eulerAngles;
-        if (transform.position.x > target.position.x)
+        if(target!= null)
         {
-            rotation.y = 180f;
+            if (transform.position.x > target.position.x)
+            {
+                transform.localScale = new Vector3(-1,1,1);
+            }
+            else
+            {
+                transform.localScale = new Vector3(1, 1, 1);
+            }
         }
-        else
-        {
-            rotation.y = 0f;
-        }
-
-        transform.eulerAngles = rotation;
+       
     }
 }

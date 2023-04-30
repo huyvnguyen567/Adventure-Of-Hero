@@ -28,7 +28,6 @@ public class Enemy : MonoBehaviour
     void Update()
     {
         UpdateHealth();
-        healthSlider.transform.position = transform.position + new Vector3(0, 0.4f, 0);
     }
     
     public void TakeDamage(int damage)

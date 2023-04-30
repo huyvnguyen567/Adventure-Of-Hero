@@ -40,6 +40,7 @@ public class Player : MonoBehaviour
     private Animator playerAnim;
     private Rigidbody2D playerRb;
     private SpriteRenderer playerSprite;
+    public float RunSpeed { get { return runSpeed; } set { runSpeed = value; } }
 
     [Header("Jump")]
     [SerializeField] private float jumpForce = 5.0f;
@@ -99,7 +100,7 @@ public class Player : MonoBehaviour
         Healing();
         UpdateMagic();
         RefillMagic();
-        if (!isDeath)
+        if (!isDeath && !DialogManager.Instance.dialogPanel.activeInHierarchy)
         {
             playerRb.velocity = new Vector2(Input.GetAxisRaw("Horizontal") * runSpeed, playerRb.velocity.y);
 
@@ -143,13 +144,17 @@ public class Player : MonoBehaviour
             playerAnim.SetBool("IsGrounded", isGrounded);
             playerAnim.SetFloat("Speed", Mathf.Abs(playerRb.velocity.x));
 
-            if (Input.GetMouseButtonDown(1) && currentMagic>= bulletMagicCost)
+            if (Input.GetKeyDown(KeyCode.Q) && currentMagic>= bulletMagicCost)
             {
                 var bullet = Instantiate(bulletPref, shootingPoint.position, shootingPoint.rotation);
                 bullet.MoveDirection = new Vector2(transform.localScale.x, 0);
                 currentMagic -= bulletMagicCost;
                 AudioController.Instance.PlayerSFX(0);
             }
+        }
+        else
+        {
+            playerRb.velocity = Vector2.zero;
         }
         
     }
@@ -182,10 +187,12 @@ public class Player : MonoBehaviour
     private void Die()
     {
         Debug.Log("Player die");
-        isDeath = true;
         playerAnim.SetBool("IsDeath", true);
         AudioController.Instance.PlayerSFX(5);
-        Destroy(gameObject,1);
+        GetComponent<Collider2D>().enabled = false;
+        GameManager.Instance.GameOver();
+        isDeath = true;
+        Destroy(gameObject, 1);
     }
 
     public void UpdateHealth()
