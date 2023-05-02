@@ -19,12 +19,12 @@ public class DialogManager : MonoBehaviour
     {
         if (dialogPanel.activeInHierarchy)
         {
-            if (Input.GetMouseButtonUp(1))
+            if (Input.GetMouseButtonDown(0))
             {
                 if (!justStarted)
                 {
                     currentSentence++;
-                    if(currentSentence >= sentences.Length)
+                    if (currentSentence >= sentences.Length)
                     {
                         dialogPanel.SetActive(false);
                     }
@@ -36,7 +36,7 @@ public class DialogManager : MonoBehaviour
                 else
                 {
                     justStarted = false;
-                }    
+                }
             }
         }
     }

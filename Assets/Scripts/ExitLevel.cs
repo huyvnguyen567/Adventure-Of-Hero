@@ -7,6 +7,14 @@ public class ExitLevel : MonoBehaviour
 {
     [SerializeField] private GameObject winScreen;
     [SerializeField] private float winDelay, timeToExit;
+    [SerializeField] private int nextSceneLoad;
+    private Animator anim;
+
+    void Start()
+    {
+        nextSceneLoad = SceneManager.GetActiveScene().buildIndex + 1;
+        anim = GetComponent<Animator>();
+    }
     public void WinGame()
     {
         StartCoroutine(WinGameCorutine());
@@ -15,17 +23,20 @@ public class ExitLevel : MonoBehaviour
     {
         yield return new WaitForSeconds(winDelay);
         winScreen.SetActive(true);
-        AudioController.Instance.PlayerSFX(2);
+        AudioController.Instance.PlayerSFX(13);
         yield return new WaitForSeconds(timeToExit);
-        int currentSceneIndex = SceneManager.GetActiveScene().buildIndex;
-        SceneManager.LoadScene(currentSceneIndex-1);
+        SceneManager.LoadScene(nextSceneLoad);
+        if(nextSceneLoad > PlayerPrefs.GetInt("LevelAt"))
+        {
+            PlayerPrefs.SetInt("LevelAt", nextSceneLoad);
+        }    
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.tag == "Player")
         {
             WinGame();
-            Destroy(collision.gameObject,1);
+            anim.SetBool("Open", true);
         }
     }
 }

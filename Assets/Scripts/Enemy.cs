@@ -16,6 +16,9 @@ public class Enemy : MonoBehaviour
     [SerializeField] private float item1DropChance; 
     [SerializeField] private GameObject item2Drop;
     [SerializeField] private float item2DropChance;
+
+    [SerializeField] private bool isBoss;
+    [SerializeField] private GameObject exitLevel;
     void Awake()
     {
         enemyAnim = GetComponent<Animator>();
@@ -38,6 +41,10 @@ public class Enemy : MonoBehaviour
         if (currentHealth <= 0)
         {
             Die();
+            if(isBoss == true)
+            {
+                exitLevel.SetActive(true);
+            }
         }
     }
 

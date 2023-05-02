@@ -65,15 +65,7 @@ public class Player : MonoBehaviour
 
     void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
+        Instance = this;
     }
     void Start()
     {
@@ -192,7 +184,7 @@ public class Player : MonoBehaviour
         GetComponent<Collider2D>().enabled = false;
         GameManager.Instance.GameOver();
         isDeath = true;
-        Destroy(gameObject, 1);
+
     }
 
     public void UpdateHealth()
